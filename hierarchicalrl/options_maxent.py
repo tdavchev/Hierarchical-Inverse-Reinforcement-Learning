@@ -4,12 +4,11 @@ Run maximum entropy inverse reinforcement learning on the gridworld MDP.
 Matthew Alger, 2015
 matthew.alger@anu.edu.au
 """
-
-import sys
-sys.path.append("/Users/todordavchev/Documents/temp/")
-
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+import csv
 
 import sdp_maxent as maxent
 import options_grid_world as options_gridworld
@@ -29,7 +28,7 @@ def main(grid_size, discount, n_trajectories, epochs, learning_rate):
     """
 
     wind = 0.3
-    trajectory_length = grid_size
+    trajectory_length = 3*grid_size/2
 
     walls = [
         (5, 0), (5, 1), (5, 3), (5, 4), (5, 5), (5, 6), (5, 7), (5, 8), (5, 10),
@@ -38,14 +37,22 @@ def main(grid_size, discount, n_trajectories, epochs, learning_rate):
         ]
 
     options = [
-        {'init_set': (5, 2), 'termination': (1, 5), 'room': 0},
-        {'init_set': (5, 2), 'termination': (8, 6), 'room': 0},
-        {'init_set': (8, 6), 'termination': (5, 2), 'room': 1},
-        {'init_set': (8, 6), 'termination': (5, 9), 'room': 1},
-        {'init_set': (5, 9), 'termination': (8, 6), 'room': 2},
-        {'init_set': (5, 9), 'termination': (1, 5), 'room': 2},
-        {'init_set': (1, 5), 'termination': (5, 9), 'room': 3},
-        {'init_set': (1, 5), 'termination': (5, 2), 'room': 3},
+        {'init_set': (1, 5), 'termination': (5, 2), 'room': 0, 'id': 0,
+         "min": (-1, -1), "max": (5, 5)},
+        {'init_set': (5, 2), 'termination': (1, 5), 'room': 0, 'id': 1,
+         "min": (-1, -1), "max": (5, 5)},
+        {'init_set': (5, 2), 'termination': (8, 6), 'room': 1, 'id': 2,
+         "min": (5, -1), "max": (11, 6)},
+        {'init_set': (8, 6), 'termination': (5, 2), 'room': 1, 'id': 3,
+         "min": (5, -1), "max": (11, 6)},
+        {'init_set': (8, 6), 'termination': (5, 9), 'room': 2, 'id': 4,
+         'min': (5, 6), 'max': (11, 11)},
+        {'init_set': (5, 9), 'termination': (8, 6), 'room': 2, 'id': 5,
+         'min': (5, 6), 'max': (11, 11)},
+        {'init_set': (5, 9), 'termination': (1, 5), 'room': 3, 'id': 6,
+         'min': (-1, 5), "max": (5, 11)},
+        {'init_set': (1, 5), 'termination': (5, 9), 'room': 3, 'id': 7,
+         'min': (-1, 5), "max": (5, 11)}
         ]
 
     rooms = [
@@ -67,37 +74,81 @@ def main(grid_size, discount, n_trajectories, epochs, learning_rate):
             74, 27
         ],
         [
+            83, 84, 85, 86, 87,
+            94, 95, 96, 97, 98,
+            105, 106, 107, 108, 109,
+            116, 117, 118, 119, 120,
+            104, 74
+        ],
+        [
             66, 67, 68, 69, 70,
             77, 78, 79, 80, 81,
             88, 89, 90, 91, 92,
             99, 100, 101, 102, 103,
             110, 111, 112, 113, 114,
             56, 104
-        ],
-        [
-            83, 84, 85, 86, 87,
-            94, 95, 96, 97, 98,
-            105, 106, 107, 108, 109,
-            116, 117, 118, 119, 120,
-            104, 74
         ]
-        ]
+    ]
     g_world = options_gridworld.Large_Gridworld(grid_size, walls, options, rooms, wind, discount)
-    trajectories = g_world.generate_intra_option_trajectories(n_trajectories,
-                                                              trajectory_length,
-                                                              g_world.intra_option_optimal_policy)
+    trajectories = []
+    for opt in options:
+        trajectories.append(
+            g_world.generate_intra_option_trajectories(
+                n_trajectories,
+                trajectory_length,
+                g_world.intra_option_optimal_policy,
+                opt))
+
+    global_trajectories = g_world.generate_option_option_trajectories(
+        trajectories, n_trajectories,
+        g_world.option_option_optimal_policy,
+        g_world.intra_option_optimal_policy)
     feature_matrix = g_world.feature_matrix()
-    ground_r = np.array([g_world.reward(s) for s in range(g_world.n_states)])
-    reward = maxent.irl([rooms[options[0]["room"]]], feature_matrix[0], g_world.n_actions, discount,
-                        g_world.improved_transition_probability[0], trajectories,
-                        epochs, learning_rate)
+    option_feature_matrix = g_world.o_feature_matrix()
+    #the reward needs to be changed not per room but per option..
+    ground_r = np.array([g_world.reward(state) for state in range(grid_size**2)])
+    ground_opt_r = np.array([g_world.opt_reward(opt) for opt in range(len(options))])
+    options_states = [rooms[opts["room"]] for opts in options]
+    reward, o_reward = maxent.irl(
+        options_states, feature_matrix,
+        option_feature_matrix, g_world.n_actions,
+        g_world.n_options, discount, g_world.options_transition_probability,
+        g_world.improved_transition_probability, trajectories, global_trajectories,
+        epochs, learning_rate, g_world.int_to_point, options)
+    result = np.zeros((len(options),grid_size**2))
+    option_result = np.zeros(8)
+    writer = csv.writer(open("/Users/alice/Documents/workplace/smdp/hierarchicalrl/results.csv", 'w'))
+    with open("/Users/alice/Documents/workplace/smdp/hierarchicalrl/opt_results.csv", 'wb') as csvfile:
+        opt_writer = csv.writer(csvfile)
+        opt_writer.writerow(o_reward)
+
+    with open("/Users/alice/Documents/workplace/smdp/hierarchicalrl/results.csv", 'wb') as csvfile:
+        writer = csv.writer(csvfile)
+        for o in range(len(options)):
+            for broi, value in enumerate(options_states[o]):
+                result[o][value] = reward[o][broi]
+            writer.writerow(result[o])
+
+# plt.savefig('/tmp/test.png')
+        # plt.subplot(1, 2, 1)
+        # plt.pcolor(ground_r.reshape((grid_size, grid_size)))
+        # plt.colorbar()
+        # plt.title("Groundtruth reward")
+        # plt.subplot(1, 2, 2)
+        # plt.pcolor(result[o].reshape((grid_size, grid_size)))
+        # plt.colorbar()
+        # plt.title("Recovered reward")
+
+    # with open('thefile.csv', 'rb') as f:
+    #     data = list(csv.reader(f))
+            
 
     plt.subplot(1, 2, 1)
-    plt.pcolor(ground_r.reshape((grid_size, grid_size)))
+    plt.pcolor(ground_opt_r.reshape((4, 2)))
     plt.colorbar()
     plt.title("Groundtruth reward")
     plt.subplot(1, 2, 2)
-    plt.pcolor(reward.reshape((grid_size, grid_size)))
+    plt.pcolor(o_reward.reshape((4, 2)))
     plt.colorbar()
     plt.title("Recovered reward")
     plt.show()
