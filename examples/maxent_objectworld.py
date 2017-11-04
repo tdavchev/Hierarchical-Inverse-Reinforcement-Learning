@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import sys
-sys.path.append("/Users/todordavchev/Documents/temp/")
+sys.path.append("/home/todor/Documents/workspace/smdp")
 
 import irl.maxent as maxent
 import irl.mdp.objectworld as objectworld

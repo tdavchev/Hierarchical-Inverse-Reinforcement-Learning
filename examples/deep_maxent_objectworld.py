@@ -8,6 +8,9 @@ matthew.alger@anu.edu.au
 import numpy as np
 import matplotlib.pyplot as plt
 
+import sys
+sys.path.append("/home/todor/Documents/workspace/smdp")
+
 import irl.deep_maxent as deep_maxent
 import irl.mdp.objectworld as objectworld
 from irl.value_iteration import find_policy

@@ -287,7 +287,6 @@ class Gridworld(object):
                 sx = next_sx
                 sy = next_sy
 
-            print keep
             trajectories.append(trajectory)
 
         return np.array(trajectories)

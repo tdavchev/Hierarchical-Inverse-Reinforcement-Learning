@@ -8,6 +8,9 @@ matthew.alger@anu.edu.au
 from time import time
 from sys import stdout
 
+import sys
+sys.path.append("/home/todor/Documents/workspace/smdp")
+
 import numpy as np
 import matplotlib.pyplot as plt
 
