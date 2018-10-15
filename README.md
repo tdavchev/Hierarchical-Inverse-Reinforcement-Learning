@@ -18,7 +18,7 @@ If you are only interested in the IRL aspect of this project, you can find at [A
 - Deep maximum entropy IRL. From Wulfmeier et al., 2015; original derivation.
 - Hierarchical MaxEnt IRL.
 
-Additionally, the following MDP domains are implemented:
+Additionally, the following MDP and semi-MDP domains are implemented:
 - Gridworld (Sutton, 1998)
 - Extended Gridworld with options (Sutton, 1998)
 - Objectworld (Levine et al., 2011)
