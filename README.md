@@ -1,7 +1,5 @@
 # Hierarchical Inverse Reinforcement Learning
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.555999.svg)](https://doi.org/10.5281/zenodo.555999)
-
 Extends [M. Alger's](https://doi.org/10.5281/zenodo.555999) implementation of selected inverse reinforcement learning (IRL). A summary report of my extension is available [here](https://www.overleaf.com/read/mkkfqgpnbvnr). His final report is available [here](http://matthewja.com/pdfs/irl.pdf) and describes the implemented algorithms.
 
 If you use this code in your work, you can cite it as follows:
