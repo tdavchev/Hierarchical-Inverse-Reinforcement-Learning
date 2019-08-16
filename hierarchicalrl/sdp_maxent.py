@@ -1,8 +1,8 @@
 """
-Implements maximum entropy inverse reinforcement learning (Ziebart et al., 2008)
+Implements Semi-MDP maximum entropy inverse reinforcement learning (Ziebart et al., 2008)
 
-Matthew Alger, 2015
-matthew.alger@anu.edu.au
+Todor Davchev, 2017
+t.b.davchev@ed.ac.uk
 """
 
 from itertools import product

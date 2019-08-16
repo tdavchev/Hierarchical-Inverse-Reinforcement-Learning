@@ -1,8 +1,8 @@
 """
 Unit tests for the gridworld MDP.
 
-Matthew Alger, 2016
-matthew.alger@anu.edu.au
+Todor Davchev, 2017
+t.b.davchev@ed.ac.uk
 """
 
 import unittest

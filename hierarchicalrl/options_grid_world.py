@@ -1,8 +1,8 @@
 """
-Implements the gridworld MDP.
+Implements the options gridworld MDP.
 
-Matthew Alger, 2015
-matthew.alger@anu.edu.au
+Todor Davchev, 2017
+t.b.davchev@ed.ac.uk
 """
 
 import numpy as np
