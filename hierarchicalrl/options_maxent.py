@@ -109,6 +109,7 @@ def main(grid_size, discount, n_trajectories, epochs, learning_rate):
     ground_r = np.array([g_world.reward(state) for state in range(grid_size**2)])
     ground_opt_r = np.array([g_world.opt_reward(opt) for opt in range(len(options))])
     options_states = [rooms[opts["room"]] for opts in options]
+    print("Compute the reward.")
     reward, o_reward = maxent.irl(
         options_states, feature_matrix,
         option_feature_matrix, g_world.n_actions,
@@ -117,12 +118,12 @@ def main(grid_size, discount, n_trajectories, epochs, learning_rate):
         epochs, learning_rate, g_world.int_to_point, options)
     result = np.zeros((len(options),grid_size**2))
     option_result = np.zeros(8)
-    writer = csv.writer(open("/Users/alice/Documents/workplace/smdp/hierarchicalrl/results.csv", 'w'))
-    with open("/Users/alice/Documents/workplace/smdp/hierarchicalrl/opt_results.csv", 'wb') as csvfile:
+    writer = csv.writer(open("results/results.csv", 'w'))
+    with open("results/opt_results.csv", 'wb') as csvfile:
         opt_writer = csv.writer(csvfile)
         opt_writer.writerow(o_reward)
 
-    with open("/Users/alice/Documents/workplace/smdp/hierarchicalrl/results.csv", 'wb') as csvfile:
+    with open("results/results.csv", 'wb') as csvfile:
         writer = csv.writer(csvfile)
         for o in range(len(options)):
             for broi, value in enumerate(options_states[o]):
