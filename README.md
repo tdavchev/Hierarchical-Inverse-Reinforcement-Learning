@@ -4,7 +4,7 @@ Extends [M. Alger's](https://doi.org/10.5281/zenodo.555999) implementation of se
 
 If you use this code in your work, you can cite it as follows:
 ```bibtex
-@misc{alger16,
+@misc{davchev17,
   author       = {Todor Davchev},
   title        = {Hierarchical Inverse Reinforcement Learning},
   year         = 2017
